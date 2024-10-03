@@ -1,8 +1,12 @@
 package com.travelport.model;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+
 public class LoginModel {
-  private String username;
-  private String password;
+
+  @Email @NotEmpty private String username;
+  @NotEmpty private String password;
 
   public String getUsername() {
     return username;

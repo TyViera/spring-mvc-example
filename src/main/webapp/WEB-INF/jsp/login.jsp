@@ -1,4 +1,4 @@
-<%--
+<%@ page import="java.util.List" %><%--
   Created by IntelliJ IDEA.
   User: naza.vieraipanaque
   Date: 10/3/2024
@@ -14,7 +14,7 @@
 <body>
 
 <div>
-    <form action="hello-world/login" method="post">
+    <form action="login" method="post">
         <label for="username">Username:</label>
         <input id="username" type="text" name="username"/>
         <br/>
@@ -23,6 +23,16 @@
         <br/>
         <input type="submit">
     </form>
+    <%
+        var errors = (List<String>) request.getAttribute("errors");
+        if (errors != null) {
+            out.println("<ul>");
+            for (var error : errors) {
+                out.println("<li>" + error + "</li>");
+            }
+            out.println("</ul>");
+        }
+    %>
 </div>
 
 </body>
