@@ -1,16 +1,15 @@
 package com.travelport.controller;
 
-import com.travelport.model.LoginModel;
-import jakarta.validation.Valid;
+import com.travelport.model.Users;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
+import java.util.Map;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -18,52 +17,33 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/hello-world")
 public class ExampleController {
 
+  protected static final Map<String, Users> DB;
+
+  static {
+    DB = new HashMap<>();
+    DB.put("1", new Users("1", "Naz", List.of("Nazbook1", "Nazbook2", "Nazbook3")));
+    DB.put("2", new Users("2", "Adria", List.of("Adriabook1", "Adriabook2", "Adriabook3")));
+    DB.put("3", new Users("3", "Daniel", List.of("Danielbook1", "Danielbook2", "Danielbook3")));
+    DB.put("4", new Users("4", "David", List.of()));
+  }
+
   @GetMapping
   public String helloWorld(
-      Model model, @RequestParam(name = "name", required = false) String name) {
+      Model model,
+      @RequestParam(name = "name", required = false) String name,
+      @RequestHeader(name = "customheader", required = false) String customHeader,
+      @CookieValue(name = "c-session") String cookie) {
     model.addAttribute("name", name);
+    model.addAttribute("customerHeader", customHeader);
     model.addAttribute("books", List.of("book1", "book2", "book3"));
     return "index";
   }
 
-  @GetMapping("/login")
-  public String login() {
-    return "login";
-  }
-
-  @PostMapping(value = "/login")
-  public String doLogin(
-      @Valid @ModelAttribute LoginModel loginModel, BindingResult bindingResult, Model model) {
-    // validate username and password
-    if (bindingResult.hasErrors()) {
-      model.addAttribute("errors", mapErrors(bindingResult));
-      return "login";
-    }
-    if (areValidCredentials(loginModel)) {
-      return "redirect:/hello-world?name=" + loginModel.getUsername();
-    }
-    model.addAttribute("errors", List.of("Wrong credentials."));
-    return "login";
-  }
-
-  private boolean areValidCredentials(LoginModel loginModel) {
-    return (loginModel.getUsername().equals("nazaret.vieraipanaque@travelport.com")
-        && loginModel.getPassword().equals("123"));
-  }
-
-  private List<String> mapErrors(BindingResult bindingResult) {
-    var fieldErrors =
-        bindingResult.getFieldErrors().stream()
-            .map(
-                x ->
-                    x.getField()
-                        + " "
-                        + x.getDefaultMessage()
-                        + ". Received: "
-                        + x.getRejectedValue());
-    var otherErrors =
-        bindingResult.getGlobalErrors().stream()
-            .map(DefaultMessageSourceResolvable::getDefaultMessage);
-    return Stream.concat(fieldErrors, otherErrors).toList();
+  @GetMapping("/{id}/details")
+  public String getById(Model model, @PathVariable("id") String id) {
+    var user = DB.get(id);
+    model.addAttribute("name", user.name());
+    model.addAttribute("books", user.books());
+    return "index";
   }
 }

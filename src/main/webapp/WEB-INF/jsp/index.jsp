@@ -14,10 +14,11 @@
 </head>
 <body>
 <p>Hello ${name}!</p>
+<p>Header ${customerHeader}!</p>
 
 <%
     var books = (List<String>) request.getAttribute("books");
-    if (books == null) {
+    if (books == null || books.isEmpty()) {
         out.println("Oops, you do not have books");
     } else {
         out.println("<p>Your books are:</p>");
